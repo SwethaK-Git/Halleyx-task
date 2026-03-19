@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Execution Details</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .navbar {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            color: #333;
+        }
+
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
+        }
+
+        .detail-label {
+            color: #999;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .detail-value {
+            color: #333;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .timeline-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 16px;
+            top: 50px;
+            width: 2px;
+            height: 30px;
+            background: #e0e0e0;
+        }
+
+        .timeline-marker {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+
+        .marker-approval {
+            background: #667eea;
+        }
+
+        .marker-notification {
+            background: #4CAF50;
+        }
+
+        .marker-task {
+            background: #ff9800;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .step-type {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #e8eaf6;
+            color: #667eea;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .decision {
+            padding: 10px 12px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            font-size: 13px;
+            margin: 10px 0;
+        }
+
+        .decision-approved {
+            background: #d4edda;
+            color: #155724;
+            border-left: 3px solid #28a745;
+        }
+
+        .decision-rejected {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 3px solid #dc3545;
+        }
+
+        .rules {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+
+        .rule-item {
+            padding: 5px 0;
+            color: #555;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .badge-primary {
+            background: #e8eaf6;
+            color: #667eea;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                padding: 20px;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>⚙️ Workflow Execution Details</h1>
+        <a href="/executions" class="nav-links" style="text-decoration: none; color: #667eea; font-weight: 600;">← Back to Executions</a>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>📋 Execution Summary</h2>
+            <div class="detail-grid" id="summary">
+                <div style="text-align: center; padding: 40px;">Loading...</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔄 Execution Timeline</h2>
+            <div class="timeline" id="timeline">
+                <div style="text-align: center; padding: 40px;">Loading...</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📧 Notifications</h2>
+            <div id="notifications">
+                <div class="no-data">No notifications sent</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>✅ Approvals</h2>
+            <div id="approvals">
+                <div class="no-data">No approvals recorded</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const executionId = window.location.pathname.split('/').pop();
+
+        async function loadDetails() {
+            try {
+                const response = await fetch(`/api/execution/${executionId}`);
+                if (!response.ok) {
+                    throw new Error('Execution not found');
+                }
+
+                const data = response.json();
+                data.then(result => {
+                    renderExecution(result);
+                });
+            } catch (error) {
+                document.getElementById('summary').innerHTML = `
+                    <div style="color: #d32f2f; padding: 20px; text-align: center;">
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function renderExecution(data) {
+            const execution = data.execution;
+            const steps = data.steps;
+            const notifications = data.notifications;
+            const approvals = data.approvals;
+
+            // Render summary
+            const summaryHtml = `
+                <div class="detail-item">
+                    <span class="detail-label">Execution ID</span>
+                    <span class="detail-value">${execution.id.substring(0, 12)}...</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Workflow</span>
+                    <span class="detail-value">${execution.workflow_name}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Status</span>
+                    <span class="detail-value" style="color: #4CAF50;">${execution.status.toUpperCase()}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Started</span>
+                    <span class="detail-value">${new Date(execution.started_at).toLocaleDateString()}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Completed</span>
+                    <span class="detail-value">${execution.completed_at ? new Date(execution.completed_at).toLocaleDateString() : '-'}</span>
+                </div>
+            `;
+            document.getElementById('summary').innerHTML = summaryHtml;
+
+            // Render timeline
+            if (steps.length > 0) {
+                const timelineHtml = steps.map((step, idx) => {
+                    const typeIcons = {
+                        'approval': '✓',
+                        'notification': '✉',
+                        'task': '◉',
+                        'condition': '?'
+                    };
+
+                    const markerClass = `marker-${step.step_type}`;
+                    const icon = typeIcons[step.step_type] || '•';
+
+                    let stepContent = `
+                        <div class="timeline-item">
+                            <div class="timeline-marker ${markerClass}">${icon}</div>
+                            <div class="timeline-content">
+                                <div class="step-title">${step.step_name}</div>
+                                <span class="step-type">${step.step_type.toUpperCase()}</span>
+                    `;
+
+                    if (step.decision) {
+                        const decisionClass = step.decision === 'APPROVED' || step.decision === 'YES' 
+                            ? 'decision-approved' 
+                            : 'decision-rejected';
+                        stepContent += `<div class="decision ${decisionClass}"><strong>Decision:</strong> ${step.decision}</div>`;
+                    }
+
+                    if (step.rules_evaluated && step.rules_evaluated.length > 0) {
+                        stepContent += `<div class="rules">`;
+                        step.rules_evaluated.forEach(rule => {
+                            stepContent += `<div class="rule-item">→ ${rule}</div>`;
+                        });
+                        stepContent += `</div>`;
+                    }
+
+                    stepContent += `
+                                <div style="font-size: 12px; color: #999; margin-top: 10px;">
+                                    Started: ${step.started_at ? new Date(step.started_at).toLocaleTimeString() : '-'}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    return stepContent;
+                }).join('');
+
+                document.getElementById('timeline').innerHTML = timelineHtml;
+            }
+
+            // Render notifications
+            if (notifications && notifications.length > 0) {
+                const notifHtml = notifications.map(notif => `
+                    <div style="padding: 15px; background: #f9f9f9; border-radius: 6px; margin-bottom: 10px;">
+                        <div><strong>To:</strong> ${notif.recipient}</div>
+                        <div style="margin-top: 8px; font-size: 13px; color: #666;">${notif.message}</div>
+                        <div style="margin-top: 8px; font-size: 11px; color: #999;">Sent: ${new Date(notif.sent_at || notif.created_at).toLocaleString()}</div>
+                    </div>
+                `).join('');
+                document.getElementById('notifications').innerHTML = notifHtml;
+            }
+
+            // Render approvals
+            if (approvals && approvals.length > 0) {
+                const approvalsHtml = approvals.map(approval => `
+                    <div style="padding: 15px; background: #f9f9f9; border-radius: 6px; margin-bottom: 10px;">
+                        <div><strong>Approver:</strong> ${approval.approver}</div>
+                        <div><strong>Decision:</strong> <span class="badge ${approval.decision === 'APPROVED' ? 'badge-success' : 'badge-warning'}">${approval.decision}</span></div>
+                        ${approval.comments ? `<div style="margin-top: 8px; font-size: 13px; color: #666;">💬 ${approval.comments}</div>` : ''}
+                        <div style="margin-top: 8px; font-size: 11px; color: #999;">Decided: ${new Date(approval.decided_at).toLocaleString()}</div>
+                    </div>
+                `).join('');
+                document.getElementById('approvals').innerHTML = approvalsHtml;
+            }
+        }
+
+        loadDetails();
+    </script>
+</body>
+</html>

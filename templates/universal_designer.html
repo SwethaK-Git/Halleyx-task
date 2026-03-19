@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Workflow Designer - Any Approval Type</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .navbar {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .navbar h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .navbar p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a, .template-btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .nav-links a {
+            background: #667eea;
+            color: white;
+        }
+
+        .nav-links a:hover {
+            background: #764ba2;
+        }
+
+        .template-btn {
+            background: #f0f0f0;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .template-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .template-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+        }
+
+        .templates-section {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .templates-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .template-card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .template-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .template-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .template-card p {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .template-btn-small {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        .template-btn-small:hover {
+            background: #764ba2;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .panel {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+
+        .panel h2 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .condition-builder {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+
+        .condition-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+
+        .condition-row input, .condition-row select {
+            margin: 0;
+        }
+
+        .btn-remove {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            min-width: 60px;
+        }
+
+        .btn-remove:hover {
+            background: #d63031;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .rules-list {
+            margin-top: 20px;
+        }
+
+        .rule-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .rule-text {
+            color: #333;
+            font-size: 14px;
+        }
+
+        .approvers-selected {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .tag {
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .preview-section {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+
+        .step-preview {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 8px 0;
+            border-left: 3px solid #667eea;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .step-preview .step-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .test-section {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+
+        .test-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .dynamic-fields {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .dynamic-field {
+            margin-bottom: 12px;
+        }
+
+        .dynamic-field input {
+            margin-top: 5px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .condition-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .success-box {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            color: #155724;
+        }
+
+        .success-box p {
+            margin: 5px 0;
+        }
+
+        .success-box code {
+            background: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>🎨 Universal Workflow Designer</h1>
+        <p>Create approval workflows for ANY type: Leave, Travel, Permissions, Expenses, Documents, etc.</p>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/executions">View Executions</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Templates Section -->
+        <div class="templates-section">
+            <h2>📋 Quick Start with Templates</h2>
+            <div class="template-grid">
+                <div class="template-card">
+                    <h3>🏥 Leave Request</h3>
+                    <p>Approval based on number of days</p>
+                    <button class="template-btn-small" onclick="loadTemplate('leave')">Load Template</button>
+                </div>
+                <div class="template-card">
+                    <h3>✈️ Travel Request</h3>
+                    <p>Approval based on budget & destination</p>
+                    <button class="template-btn-small" onclick="loadTemplate('travel')">Load Template</button>
+                </div>
+                <div class="template-card">
+                    <h3>💰 Expense Request</h3>
+                    <p>Approval based on amount</p>
+                    <button class="template-btn-small" onclick="loadTemplate('expense')">Load Template</button>
+                </div>
+                <div class="template-card">
+                    <h3>🔐 Permission Request</h3>
+                    <p>Approval based on access level</p>
+                    <button class="template-btn-small" onclick="loadTemplate('permission')">Load Template</button>
+                </div>
+                <div class="template-card">
+                    <h3>📄 Document Approval</h3>
+                    <p>Approval based on document type</p>
+                    <button class="template-btn-small" onclick="loadTemplate('document')">Load Template</button>
+                </div>
+                <div class="template-card">
+                    <h3>🛠️ Custom Workflow</h3>
+                    <p>Create your own from scratch</p>
+                    <button class="template-btn-small" onclick="resetForm()">Start Fresh</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Panel: Configuration -->
+            <div class="panel">
+                <h2>⚙️ Configure Workflow</h2>
+                
+                <div id="alerts"></div>
+
+                <div class="form-group">
+                    <label for="workflowName">Workflow Name *</label>
+                    <input type="text" id="workflowName" placeholder="e.g., Leave Approval System">
+                </div>
+
+                <div class="form-group">
+                    <label for="workflowDesc">Description</label>
+                    <textarea id="workflowDesc" placeholder="Describe your workflow..."></textarea>
+                </div>
+
+                <!-- Dynamic Fields for Request Data -->
+                <h3 style="color: #333; margin: 25px 0 15px 0; font-size: 14px;">Request Fields</h3>
+                <div class="dynamic-fields" id="dynamicFields">
+                    <p style="color: #999; font-size: 13px;">Templates will populate fields automatically</p>
+                </div>
+
+                <!-- Approval Rules -->
+                <h3 style="color: #333; margin: 25px 0 15px 0; font-size: 14px;">Approval Rules</h3>
+                <div class="condition-builder">
+                    <div class="condition-row">
+                        <input type="text" id="ruleField" placeholder="Field name (e.g., days)">
+                        <select id="ruleOperator">
+                            <option value=">">&gt; (greater than)</option>
+                            <option value="<">&lt; (less than)</option>
+                            <option value=">=">&gt;= (greater or equal)</option>
+                            <option value="<=">&lt;= (less or equal)</option>
+                            <option value="==">=== (equals)</option>
+                            <option value="!=">&nbsp;!= (not equals)</option>
+                            <option value="in">in (contains)</option>
+                        </select>
+                        <input type="text" id="ruleValue" placeholder="Value">
+                        <button class="btn-remove" onclick="addRule()">Add Rule</button>
+                    </div>
+                </div>
+
+                <!-- Selected Approvers -->
+                <div class="form-group">
+                    <label>When This Rule Matches, Require Approvals From:</label>
+                    <select id="approversSelect" multiple size="5">
+                        <option value="Manager">Manager</option>
+                        <option value="Director">Director</option>
+                        <option value="HOD">Head of Department</option>
+                        <option value="CEO">CEO</option>
+                        <option value="Finance">Finance</option>
+                        <option value="SecurityAdmin">Security Admin</option>
+                        <option value="HR">HR</option>
+                        <option value="Legal">Legal</option>
+                    </select>
+                    <small style="color: #999; font-size: 12px;">Hold Ctrl/Cmd to select multiple. Rules above this rule are also active (cumulative).</small>
+                </div>
+
+                <!-- Current Rules List -->
+                <div class="rules-list" id="rulesList"></div>
+
+                <!-- Action Buttons -->
+                <button class="btn btn-primary" onclick="createWorkflow()">✅ Create Workflow</button>
+                <button class="btn btn-secondary" onclick="resetForm()">🔄 Reset</button>
+            </div>
+
+            <!-- Right Panel: Preview & Test -->
+            <div class="panel">
+                <h2>👁️ Preview & Test</h2>
+
+                <!-- Workflow Preview -->
+                <div class="preview-section">
+                    <h3 style="color: #333; margin-bottom: 15px; font-size: 14px;">Workflow Structure</h3>
+                    <div id="workflowPreview">
+                        <p style="color: #999; font-size: 13px;">Add rules to see workflow preview...</p>
+                    </div>
+                </div>
+
+                <!-- Test Execution -->
+                <div class="test-section">
+                    <h3>Test With Sample Data</h3>
+                    <div id="testFields"></div>
+                    <button class="btn btn-primary" onclick="executeWorkflow()" id="executeBtn" disabled>▶️ Execute Test</button>
+                </div>
+
+                <!-- Execution Results -->
+                <div id="executionResults" style="display: none; margin-top: 20px; background: white; padding: 15px; border-radius: 6px;"></div>
+
+                <!-- Success Message -->
+                <div id="successBox" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let rules = [];
+        let currentWorkflowId = null;
+        let fieldsDefinition = [];
+
+        // Template Data
+        const templates = {
+            leave: {
+                name: "Leave Request Approval",
+                description: "Automated leave approval based on number of days requested",
+                fields: [
+                    { name: "days_requested", label: "Days Requested", type: "number" },
+                    { name: "leave_type", label: "Leave Type", type: "text" },
+                    { name: "department", label: "Department", type: "text" }
+                ],
+                rules: [
+                    { field: "days_requested", operator: "<=", value: "3", approvers: ["Manager"] },
+                    { field: "days_requested", operator: ">", value: "3", approvers: ["Manager", "Director"] },
+                    { field: "days_requested", operator: ">", value: "7", approvers: ["Manager", "Director", "CEO"] }
+                ]
+            },
+            travel: {
+                name: "Travel Request Approval",
+                description: "Travel approval based on budget and destination",
+                fields: [
+                    { name: "budget", label: "Budget", type: "number" },
+                    { name: "duration_days", label: "Duration (days)", type: "number" },
+                    { name: "destination", label: "Destination", type: "text" }
+                ],
+                rules: [
+                    { field: "budget", operator: "<=", value: "10000", approvers: ["Manager"] },
+                    { field: "budget", operator: ">", value: "10000", approvers: ["Manager", "Finance"] },
+                    { field: "destination", operator: "in", value: "International", approvers: ["Manager", "Finance", "HR"] }
+                ]
+            },
+            expense: {
+                name: "Expense Request Approval",
+                description: "Expense approval based on amount",
+                fields: [
+                    { name: "amount", label: "Amount", type: "number" },
+                    { name: "category", label: "Category", type: "text" },
+                    { name: "department", label: "Department", type: "text" }
+                ],
+                rules: [
+                    { field: "amount", operator: "<=", value: "500", approvers: ["Manager"] },
+                    { field: "amount", operator: ">", value: "500", approvers: ["Manager", "Finance"] },
+                    { field: "amount", operator: ">", value: "5000", approvers: ["Manager", "Finance", "CEO"] }
+                ]
+            },
+            permission: {
+                name: "System Permission Request",
+                description: "Permission approval based on access level",
+                fields: [
+                    { name: "access_level", label: "Access Level", type: "text" },
+                    { name: "resource", label: "Resource/System", type: "text" },
+                    { name: "reason", label: "Reason", type: "text" }
+                ],
+                rules: [
+                    { field: "access_level", operator: "==", value: "Low", approvers: ["Manager"] },
+                    { field: "access_level", operator: "==", value: "Medium", approvers: ["Manager", "SecurityAdmin"] },
+                    { field: "access_level", operator: "==", value: "High", approvers: ["Manager", "SecurityAdmin", "CEO"] }
+                ]
+            },
+            document: {
+                name: "Document Approval",
+                description: "Document approval based on type and version",
+                fields: [
+                    { name: "document_type", label: "Document Type", type: "text" },
+                    { name: "version", label: "Version", type: "number" },
+                    { name: "urgency", label: "Urgency Level", type: "text" }
+                ],
+                rules: [
+                    { field: "urgency", operator: "==", value: "Low", approvers: ["Manager"] },
+                    { field: "document_type", operator: "==", value: "Policy", approvers: ["Manager", "Legal"] },
+                    { field: "version", operator: ">", value: "2.0", approvers: ["Manager", "Legal", "CEO"] }
+                ]
+            }
+        };
+
+        function showAlert(msg, type = 'info') {
+            const alertDiv = document.getElementById('alerts');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = msg;
+            alertDiv.appendChild(alert);
+            if (type !== 'error') setTimeout(() => alert.remove(), 4000);
+        }
+
+        function loadTemplate(templateName) {
+            const template = templates[templateName];
+            if (!template) return;
+
+            document.getElementById('workflowName').value = template.name;
+            document.getElementById('workflowDesc').value = template.description;
+            fieldsDefinition = template.fields;
+            rules = [];
+
+            renderFields();
+            template.rules.forEach((r, idx) => {
+                rules.push(r);
+            });
+
+            renderRules();
+            updatePreview();
+            showAlert(`✅ Loaded ${template.name} template!`, 'success');
+        }
+
+        function renderFields() {
+            const container = document.getElementById('dynamicFields');
+            container.innerHTML = '';
+
+            if (fieldsDefinition.length === 0) {
+                container.innerHTML = '<p style="color: #999; font-size: 13px;">No fields defined</p>';
+                return;
+            }
+
+            fieldsDefinition.forEach((field, idx) => {
+                const div = document.createElement('div');
+                div.className = 'dynamic-field';
+                div.innerHTML = `
+                    <label>${field.label}</label>
+                    <input type="text" placeholder="Field name: ${field.name}" value="${field.name}" readonly>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function addRule() {
+            const field = document.getElementById('ruleField').value;
+            const operator = document.getElementById('ruleOperator').value;
+            const value = document.getElementById('ruleValue').value;
+            const approvesSelect = document.getElementById('approversSelect');
+            const approvers = Array.from(approvesSelect.selectedOptions).map(opt => opt.value);
+
+            if (!field || !value) {
+                showAlert('Please fill in all rule fields', 'error');
+                return;
+            }
+
+            if (approvers.length === 0) {
+                showAlert('Please select at least one approver', 'error');
+                return;
+            }
+
+            rules.push({ field, operator, value, approvers });
+
+            document.getElementById('ruleField').value = '';
+            document.getElementById('ruleValue').value = '';
+            approvesSelect.value = '';
+
+            renderRules();
+            updatePreview();
+            showAlert(`✅ Rule added: ${field} ${operator} ${value}`, 'success');
+        }
+
+        function removeRule(idx) {
+            rules.splice(idx, 1);
+            renderRules();
+            updatePreview();
+        }
+
+        function renderRules() {
+            const container = document.getElementById('rulesList');
+            container.innerHTML = '';
+
+            rules.forEach((r, idx) => {
+                const div = document.createElement('div');
+                div.className = 'rule-item';
+                div.innerHTML = `
+                    <div>
+                        <div class="rule-text"><strong>If ${r.field} ${r.operator} ${r.value}</strong></div>
+                        <div class="approvers-selected">
+                            ${r.approvers.map(a => `<span class="tag">${a}</span>`).join('')}
+                        </div>
+                    </div>
+                    <button class="btn-remove" onclick="removeRule(${idx})">Remove</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updatePreview() {
+            const preview = document.getElementById('workflowPreview');
+            if (rules.length === 0) {
+                preview.innerHTML = '<p style="color: #999; font-size: 13px;">Add rules to see workflow preview</p>';
+                document.getElementById('executeBtn').disabled = true;
+                renderTestFields();
+                return;
+            }
+
+            let html = '<div class="step-preview"><span class="step-name">📥 Input Request</span></div>';
+
+            rules.forEach((r, idx) => {
+                html += `<div class="step-preview">
+                    <span class="step-name">✓ Condition: ${r.field} ${r.operator} ${r.value}</span>
+                    <div style="margin-top: 8px; margin-left: 15px;">
+                        Approvers: ${r.approvers.join(', ')}
+                    </div>
+                </div>`;
+            });
+
+            html += '<div class="step-preview"><span class="step-name">✅ Mark Complete</span></div>';
+            preview.innerHTML = html;
+            document.getElementById('executeBtn').disabled = false;
+            renderTestFields();
+        }
+
+        function renderTestFields() {
+            const container = document.getElementById('testFields');
+            container.innerHTML = '';
+
+            if (fieldsDefinition.length === 0) return;
+
+            fieldsDefinition.forEach(field => {
+                const div = document.createElement('div');
+                div.className = 'form-group';
+                const inputType = field.type === 'number' ? 'number' : 'text';
+                div.innerHTML = `
+                    <label>${field.label}</label>
+                    <input type="${inputType}" id="test_${field.name}" placeholder="Enter ${field.label}">
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function createWorkflow() {
+            const name = document.getElementById('workflowName').value;
+            const desc = document.getElementById('workflowDesc').value;
+
+            if (!name) {
+                showAlert('Please enter workflow name', 'error');
+                return;
+            }
+
+            if (rules.length === 0) {
+                showAlert('Please add at least one approval rule', 'error');
+                return;
+            }
+
+            const payload = {
+                workflow_name: name,
+                workflow_description: desc,
+                fields: fieldsDefinition,
+                rules: rules
+            };
+
+            fetch('/api/universal-workflow/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    currentWorkflowId = data.workflow_id;
+                    const successDiv = document.getElementById('successBox');
+                    successDiv.innerHTML = `
+                        <div class="success-box">
+                            <p>✅ <strong>Workflow Created Successfully!</strong></p>
+                            <p><strong>Name:</strong> ${data.workflow_name}</p>
+                            <p><strong>Workflow ID:</strong> <code>${data.workflow_id}</code></p>
+                            <p><strong>Rules:</strong> ${data.rules_count}</p>
+                            <p style="margin-top: 10px; color: #0c5460; font-size: 12px;">You can now test it with sample data →</p>
+                        </div>
+                    `;
+                    successDiv.style.display = 'block';
+                    showAlert(data.message, 'success');
+                } else {
+                    showAlert(data.error, 'error');
+                }
+            })
+            .catch(e => showAlert(`Error: ${e.message}`, 'error'));
+        }
+
+        function executeWorkflow() {
+            if (!currentWorkflowId) {
+                showAlert('Please create a workflow first', 'error');
+                return;
+            }
+
+            const testData = {};
+            fieldsDefinition.forEach(field => {
+                const value = document.getElementById(`test_${field.name}`).value;
+                testData[field.name] = field.type === 'number' ? parseFloat(value) : value;
+            });
+
+            fetch('/api/universal-workflow/execute', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    workflow_id: currentWorkflowId,
+                    input_data: testData
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const resultsDiv = document.getElementById('executionResults');
+                    let html = '<h3 style="color: #333; margin-bottom: 15px;">Execution Results</h3>';
+                    html += '<div class="alert alert-success">✅ Workflow executed successfully!</div>';
+                    
+                    html += '<p style="color: #666; margin-bottom: 10px;"><strong>Execution ID:</strong> ' + data.execution_id + '</p>';
+                    html += '<p style="color: #666; margin-bottom: 15px;"><strong>Steps Executed:</strong> ' + data.steps_executed + '</p>';
+                    
+                    html += '<h4 style="color: #333; margin: 15px 0 10px 0; font-size: 13px;">Step Results:</h4>';
+                    data.details.steps.forEach((step, idx) => {
+                        html += `
+                            <div style="background: #f9f9f9; padding: 10px; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid #667eea;">
+                                <p><strong>${idx + 1}. ${step.step_name}</strong> - <span style="color: #27ae60; font-weight: bold;">${step.status.toUpperCase()}</span></p>
+                                <p style="color: #666; font-size: 12px; margin-top: 5px;">Decision: ${step.decision || 'N/A'}</p>
+                            </div>
+                        `;
+                    });
+                    
+                    resultsDiv.innerHTML = html;
+                    resultsDiv.style.display = 'block';
+                    showAlert('Workflow test completed!', 'success');
+                } else {
+                    showAlert(data.error, 'error');
+                }
+            })
+            .catch(e => showAlert(`Error: ${e.message}`, 'error'));
+        }
+
+        function resetForm() {
+            document.getElementById('workflowName').value = '';
+            document.getElementById('workflowDesc').value = '';
+            document.getElementById('alerts').innerHTML = '';
+            document.getElementById('rulesList').innerHTML = '';
+            document.getElementById('workflowPreview').innerHTML = '<p style="color: #999; font-size: 13px;">Add rules to see workflow preview</p>';
+            document.getElementById('successBox').style.display = 'none';
+            document.getElementById('executionResults').style.display = 'none';
+            rules = [];
+            fieldsDefinition = [];
+            currentWorkflowId = null;
+            document.getElementById('executeBtn').disabled = true;
+            renderFields();
+            renderTestFields();
+        }
+    </script>
+</body>
+</html>

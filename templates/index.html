@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Approval Workflow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="email"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background-color: #f7f9ff;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-reset {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-reset:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-history {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-history:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .alert {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 6px;
+            background: #f9f9f9;
+        }
+
+        .result h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .result-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 4px solid #667eea;
+            background: white;
+        }
+
+        .approval-chain {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .approval-level {
+            padding: 8px 12px;
+            background: #e8eaf6;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .arrow {
+            color: #666;
+            font-weight: bold;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 20px;
+            }
+
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Expense Approval</h1>
+            <p>Submit your expense for automated approval workflow</p>
+        </div>
+
+        <div id="alert" class="alert"></div>
+
+        <form id="expenseForm">
+            <div class="input-row">
+                <div class="form-group">
+                    <label for="amount">Amount ($)*</label>
+                    <input type="number" id="amount" name="amount" required min="1" step="0.01" placeholder="Enter amount">
+                </div>
+
+                <div class="form-group">
+                    <label for="priority">Priority*</label>
+                    <select id="priority" name="priority" required>
+                        <option value="">Select Priority</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-row">
+                <div class="form-group">
+                    <label for="country">Country*</label>
+                    <select id="country" name="country" required>
+                        <option value="">Select Country</option>
+                        <option value="US">United States</option>
+                        <option value="UK">United Kingdom</option>
+                        <option value="India">India</option>
+                        <option value="Canada">Canada</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="department">Department*</label>
+                    <select id="department" name="department" required>
+                        <option value="">Select Department</option>
+                        <option value="Finance">Finance</option>
+                        <option value="HR">Human Resources</option>
+                        <option value="IT">Information Technology</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Operations">Operations</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="submitted_by">Submitted By</label>
+                <input type="text" id="submitted_by" name="submitted_by" placeholder="Your name or email">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" placeholder="Brief description of the expense..."></textarea>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Processing your expense...</p>
+            </div>
+
+            <div class="result" id="result"></div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-submit">📤 Submit Expense</button>
+                <button type="reset" class="btn-reset">🔄 Clear Form</button>
+                <button type="button" class="btn-history" onclick="goToHistory()">📋 View History</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('expenseForm');
+        const alert_box = document.getElementById('alert');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+
+        function showAlert(message, type) {
+            alert_box.textContent = message;
+            alert_box.className = `alert alert-${type}`;
+            alert_box.style.display = 'block';
+            setTimeout(() => {
+                alert_box.style.display = 'none';
+            }, 5000);
+        }
+
+        function goToHistory() {
+            window.location.href = '/history';
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                amount: parseFloat(document.getElementById('amount').value),
+                country: document.getElementById('country').value,
+                department: document.getElementById('department').value,
+                priority: document.getElementById('priority').value,
+                submitted_by: document.getElementById('submitted_by').value || 'Anonymous',
+                description: document.getElementById('description').value
+            };
+
+            loading.style.display = 'block';
+            result.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/submit-expense', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                loading.style.display = 'none';
+
+                if (response.ok) {
+                    showAlert(`✅ ${data.message}`, 'success');
+                    
+                    // Show result details
+                    const approvalChain = data.approval_chain.length > 0 
+                        ? data.approval_chain.join(' → ') 
+                        : 'Auto-Approved';
+                    
+                    result.innerHTML = `
+                        <h3>✅ Approval Workflow Result</h3>
+                        <div class="result-item">
+                            <strong>Expense ID:</strong> ${data.expense_id}
+                        </div>
+                        <div class="result-item">
+                            <strong>Status:</strong> <span style="color: ${data.status === 'APPROVED' ? '#4CAF50' : '#f44336'}; font-weight: bold;">${data.status}</span>
+                        </div>
+                        <div class="result-item">
+                            <strong>Amount:</strong> $${formData.amount}
+                        </div>
+                        <div class="result-item">
+                            <strong>Approval Chain:</strong>
+                            <div class="approval-chain">
+                                ${data.approval_chain.map(level => `<span class="approval-level">${level}</span>`).join('<span class="arrow">→</span>')}
+                                ${data.approval_chain.length === 0 ? '<span class="approval-level">System Auto-Approved</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="result-item">
+                            <strong>Department:</strong> ${formData.department}
+                        </div>
+                        <div class="result-item">
+                            <strong>Priority:</strong> ${formData.priority}
+                        </div>
+                        <button onclick="window.location.href='/expense/${data.expense_id}'" style="width: 100%; margin-top: 15px; padding: 10px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer;">View Full Details</button>
+                    `;
+                    result.style.display = 'block';
+                    
+                    form.reset();
+                } else {
+                    showAlert(`❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                loading.style.display = 'none';
+                showAlert(`❌ Server error: ${error.message}`, 'error');
+            }
+        });
+    </script>
+</body>
+</html>

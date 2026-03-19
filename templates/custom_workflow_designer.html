@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Workflow Designer - Workflow Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        nav {
+            margin-top: 15px;
+        }
+
+        nav a {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-right: 10px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        nav a:hover {
+            background: #764ba2;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .panel {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .panel h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #764ba2;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .secondary-btn {
+            background: #f0f0f0;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        .secondary-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .threshold-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .threshold-item h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .threshold-item button {
+            background: #ff6b6b;
+            margin-top: 10px;
+            padding: 8px 16px;
+        }
+
+        .threshold-item button:hover {
+            background: #d63031;
+        }
+
+        .approvers-list {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .approver-tag {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .approver-tag .remove {
+            margin-left: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .status-box {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+
+        .status-box h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+            font-size: 13px;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .step-preview {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .step-preview .step-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .step-preview .step-rule {
+            margin-left: 15px;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .execution-result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        .execution-result h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .execution-step {
+            background: white;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-left: 4px solid #667eea;
+        }
+
+        .execution-step .status-approved {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .execution-step .status-rejected {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            .approvers-list {
+                flex-direction: column;
+            }
+        }
+
+        .loading {
+            display: none;
+            color: #667eea;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .workflow-created {
+            background: #d4edda;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+
+        .workflow-created p {
+            color: #155724;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 Custom Workflow Designer</h1>
+            <p>Define your own approval workflow with custom thresholds and approvers</p>
+            <nav>
+                <a href="/">Home</a>
+                <a href="/designer">Default Designer</a>
+                <a href="/executions">View Executions</a>
+            </nav>
+        </header>
+
+        <div class="content">
+            <!-- Left Panel: Workflow Configuration -->
+            <div class="panel">
+                <h2>📋 Configure Your Workflow</h2>
+
+                <div id="alerts"></div>
+
+                <!-- Workflow Name -->
+                <div class="form-group">
+                    <label for="workflowName">Workflow Name</label>
+                    <input type="text" id="workflowName" placeholder="e.g., Expense Approval" value="Custom Approval Workflow">
+                </div>
+
+                <!-- Add Threshold Section -->
+                <div style="background: #f9f9f9; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+                    <h3 style="color: #333; margin-bottom: 15px; font-size: 14px;">Add Approval Threshold</h3>
+
+                    <div class="form-group">
+                        <label for="thresholdAmount">Amount Threshold</label>
+                        <input type="number" id="thresholdAmount" placeholder="e.g., 600" min="0" step="100">
+                        <small style="color: #999; font-size: 12px;">Expenses above this amount need these approvals</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="approversSelect">Select Approvers</label>
+                        <select id="approversSelect" multiple>
+                            <option value="Manager">Manager</option>
+                            <option value="Finance">Finance Director</option>
+                            <option value="CEO">CEO</option>
+                            <option value="Director">Director</option>
+                            <option value="HOD">Head of Department</option>
+                        </select>
+                        <small style="color: #999; font-size: 12px;">Hold Ctrl/Cmd to select multiple</small>
+                    </div>
+
+                    <button onclick="addThreshold()" class="secondary-btn">+ Add This Threshold</button>
+                </div>
+
+                <!-- Thresholds List -->
+                <h3 style="color: #333; margin-top: 20px; margin-bottom: 10px; font-size: 14px;">Your Thresholds</h3>
+                <div id="thresholdsList"></div>
+
+                <!-- Action Buttons -->
+                <button onclick="createWorkflow()" id="createBtn" style="margin-top: 20px;">✅ Create Workflow</button>
+                <button onclick="resetForm()" class="secondary-btn">🔄 Reset</button>
+
+                <!-- Workflow Created Confirmation -->
+                <div id="workflowCreated" style="display: none; margin-top: 20px;"></div>
+            </div>
+
+            <!-- Right Panel: Preview & Execution -->
+            <div class="panel">
+                <h2>👁️ Preview & Execute</h2>
+
+                <div id="previewalerts"></div>
+
+                <!-- Workflow Preview -->
+                <h3 style="color: #333; margin-top: 20px; margin-bottom: 10px; font-size: 14px;">Workflow Structure</h3>
+                <div id="workflowPreview" style="margin-bottom: 20px;">
+                    <p style="color: #999; font-size: 13px;">Add thresholds and create workflow to see preview here</p>
+                </div>
+
+                <!-- Test Execution Section -->
+                <div style="background: #f9f9f9; padding: 15px; border-radius: 4px; margin-top: 20px;">
+                    <h3 style="color: #333; margin-bottom: 15px; font-size: 14px;">Test Your Workflow</h3>
+
+                    <div class="form-group">
+                        <label for="testAmount">Test Amount</label>
+                        <input type="number" id="testAmount" placeholder="e.g., 5000" min="0" step="100" value="5000">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="testDepartment">Department</label>
+                        <input type="text" id="testDepartment" placeholder="e.g., Finance" value="Finance">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="testStatus">Status</label>
+                        <select id="testStatus">
+                            <option value="New">New</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Review">Review</option>
+                        </select>
+                    </div>
+
+                    <button onclick="executeWorkflow()" id="executeBtn" disabled style="margin-top: 15px;">▶️ Execute Workflow</button>
+                </div>
+
+                <!-- Execution Results -->
+                <div id="executionResults" style="display: none; margin-top: 20px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let thresholds = [];
+        let currentWorkflowId = null;
+
+        function showAlert(message, type = 'info', target = 'alerts') {
+            const alertDiv = document.getElementById(target);
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alert.style.marginBottom = '15px';
+            alertDiv.appendChild(alert);
+
+            if (type !== 'error') {
+                setTimeout(() => alert.remove(), 5000);
+            }
+        }
+
+        function addThreshold() {
+            const amount = parseInt(document.getElementById('thresholdAmount').value);
+            const approversSelect = document.getElementById('approversSelect');
+            const approvers = Array.from(approversSelect.selectedOptions).map(opt => opt.value);
+
+            if (!amount || amount < 0) {
+                showAlert('Please enter a valid amount', 'error');
+                return;
+            }
+
+            if (approvers.length === 0) {
+                showAlert('Please select at least one approver', 'error');
+                return;
+            }
+
+            // Check for duplicates
+            if (thresholds.some(t => t.amount === amount)) {
+                showAlert('This threshold amount already exists', 'error');
+                return;
+            }
+
+            thresholds.push({ amount, approvers });
+            thresholds.sort((a, b) => a.amount - b.amount);
+
+            document.getElementById('thresholdAmount').value = '';
+            approversSelect.value = '';
+
+            renderThresholds();
+            updatePreview();
+            showAlert(`Added threshold: ₹${amount} requires ${approvers.join(', ')}`, 'success');
+        }
+
+        function removeThreshold(index) {
+            const removed = thresholds.splice(index, 1)[0];
+            renderThresholds();
+            updatePreview();
+            showAlert(`Removed threshold: ₹${removed.amount}`, 'success');
+        }
+
+        function renderThresholds() {
+            const container = document.getElementById('thresholdsList');
+            container.innerHTML = '';
+
+            if (thresholds.length === 0) {
+                container.innerHTML = '<p style="color: #999; font-size: 13px;">No thresholds added yet</p>';
+                return;
+            }
+
+            thresholds.forEach((t, i) => {
+                const div = document.createElement('div');
+                div.className = 'threshold-item';
+                div.innerHTML = `
+                    <h4>Threshold #${i + 1}: ₹${t.amount}</h4>
+                    <div class="approvers-list">
+                        ${t.approvers.map(a => `<span class="approver-tag">${a}</span>`).join('')}
+                    </div>
+                    <button onclick="removeThreshold(${i})" style="width: 100%; margin-top: 10px;">🗑️ Remove</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updatePreview() {
+            const preview = document.getElementById('workflowPreview');
+            
+            if (thresholds.length === 0) {
+                preview.innerHTML = '<p style="color: #999; font-size: 13px;">Add thresholds to see workflow preview</p>';
+                document.getElementById('executeBtn').disabled = true;
+                return;
+            }
+
+            let html = '<div class="step-preview"><span class="step-name">📥 Input: Expense Request</span></div>';
+            html += '<div class="step-preview"><span class="step-name">✓ Manager Approval</span><div class="step-rule">Always required (amount > 0)</div></div>';
+            html += '<div class="step-preview"><span class="step-name">📧 Notification</span><div class="step-rule">Notify stakeholders</div></div>';
+
+            thresholds.forEach((t, i) => {
+                t.approvers.forEach(approver => {
+                    if (approver !== 'Manager') {
+                        html += `<div class="step-preview"><span class="step-name">✓ ${approver} Approval</span><div class="step-rule">Required for amounts > ₹${t.amount}</div></div>`;
+                    }
+                });
+            });
+
+            html += '<div class="step-preview"><span class="step-name">✅ Task Completion</span><div class="step-rule">Mark as approved</div></div>';
+
+            preview.innerHTML = html;
+            document.getElementById('executeBtn').disabled = false;
+        }
+
+        function createWorkflow() {
+            if (thresholds.length === 0) {
+                showAlert('Please add at least one threshold', 'error');
+                return;
+            }
+
+            const workflowName = document.getElementById('workflowName').value || 'Custom Workflow';
+
+            fetch('/api/custom-workflow/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    workflow_name: workflowName,
+                    thresholds: thresholds
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    currentWorkflowId = data.workflow_id;
+                    const msg = `
+                        <div class="workflow-created">
+                            <p>✅ Workflow Created Successfully!</p>
+                            <p><strong>Name:</strong> ${data.workflow_name}</p>
+                            <p><strong>ID:</strong> ${data.workflow_id}</p>
+                            <p><strong>Steps:</strong> ${data.steps.join(', ')}</p>
+                            <p style="color: #666; font-size: 12px; margin-top: 10px;">You can now test it with sample data below →</p>
+                        </div>
+                    `;
+                    document.getElementById('workflowCreated').innerHTML = msg;
+                    document.getElementById('workflowCreated').style.display = 'block';
+                    showAlert(data.message, 'success');
+                } else {
+                    showAlert(data.error, 'error');
+                }
+            })
+            .catch(e => showAlert(`Error: ${e.message}`, 'error'));
+        }
+
+        function executeWorkflow() {
+            if (!currentWorkflowId) {
+                showAlert('Please create a workflow first', 'error', 'previewAlerts');
+                return;
+            }
+
+            const amount = parseFloat(document.getElementById('testAmount').value);
+            const department = document.getElementById('testDepartment').value || 'Finance';
+            const status = document.getElementById('testStatus').value;
+
+            if (!amount || amount < 0) {
+                showAlert('Please enter a valid amount', 'error', 'previewAlerts');
+                return;
+            }
+
+            document.getElementById('executeBtn').disabled = true;
+            document.getElementById('executeBtn').textContent = '⏳ Executing...';
+
+            fetch('/api/custom-workflow/execute', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    workflow_id: currentWorkflowId,
+                    input_data: { amount, department, status }
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('executeBtn').disabled = false;
+                document.getElementById('executeBtn').textContent = '▶️ Execute Workflow';
+
+                if (data.success) {
+                    let html = `
+                        <div class="execution-result">
+                            <h3>✅ Execution Results</h3>
+                            <div class="status-item">
+                                <strong>Execution ID:</strong>
+                                <span>${data.execution_id}</span>
+                            </div>
+                            <div class="status-item">
+                                <strong>Status:</strong>
+                                <span style="color: #27ae60; font-weight: bold;">${data.status}</span>
+                            </div>
+                            <div class="status-item">
+                                <strong>Steps Executed:</strong>
+                                <span>${data.steps_executed}</span>
+                            </div>
+                            <div style="margin-top: 15px;">
+                                <h4 style="color: #333; margin-bottom: 10px;">Step-by-Step Execution:</h4>
+                    `;
+
+                    data.details.steps.forEach((step, i) => {
+                        html += `
+                            <div class="execution-step">
+                                <strong>${i + 1}. ${step.step_name}</strong>
+                                <div style="margin-top: 5px; font-size: 12px;">
+                                    <div>Status: <span class="status-${step.status}">${step.status}</span></div>
+                                    <div>Decision: ${step.decision}</div>
+                                    ${step.rules.length > 0 ? `<div>Rules: ${JSON.stringify(step.rules)}</div>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    html += `
+                            </div>
+                            <p style="color: #666; font-size: 12px; margin-top: 15px;">
+                                <a href="/execution/${data.execution_id}" style="color: #667eea; text-decoration: none;">
+                                    View detailed audit trail →
+                                </a>
+                            </p>
+                        </div>
+                    `;
+
+                    document.getElementById('executionResults').innerHTML = html;
+                    document.getElementById('executionResults').style.display = 'block';
+                    showAlert('Workflow executed successfully!', 'success', 'previewAlerts');
+                } else {
+                    showAlert(`Error: ${data.error}`, 'error', 'previewAlerts');
+                }
+            })
+            .catch(e => {
+                document.getElementById('executeBtn').disabled = false;
+                document.getElementById('executeBtn').textContent = '▶️ Execute Workflow';
+                showAlert(`Error: ${e.message}`, 'error', 'previewAlerts');
+            });
+        }
+
+        function resetForm() {
+            thresholds = [];
+            currentWorkflowId = null;
+            document.getElementById('workflowName').value = 'Custom Approval Workflow';
+            document.getElementById('thresholdAmount').value = '';
+            document.getElementById('approversSelect').value = '';
+            document.getElementById('testAmount').value = '5000';
+            document.getElementById('testDepartment').value = 'Finance';
+            document.getElementById('testStatus').value = 'New';
+            document.getElementById('workflowCreated').style.display = 'none';
+            document.getElementById('executionResults').style.display = 'none';
+            document.getElementById('alerts').innerHTML = '';
+            document.getElementById('previewAlerts').innerHTML = '';
+            renderThresholds();
+            updatePreview();
+            showAlert('Form reset', 'success');
+        }
+
+        // Initialize
+        renderThresholds();
+        updatePreview();
+    </script>
+</body>
+</html>
